@@ -3,12 +3,15 @@ import { collection, addDoc } from 'firebase/firestore';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { db, storage } from '../firebase';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet,TextInput } from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 const AddProductForm = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [image, setImage] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [value, setValue] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,6 +38,27 @@ const AddProductForm = () => {
       });
     
     }
+    // if (selectedItem.label === 'pizza') {
+    //   await addDoc(collection(db, "pizza"), {
+    //     name: name,
+    //     description: description,
+    //   });
+    // } else if (selectedItem.label === 'burger') {
+    //   await addDoc(collection(db, "burger"), {
+    //     name: name,
+    //     description: description,
+    //   });
+    // } else if (selectedItem.label === 'coffee') {
+    //   await addDoc(collection(db, "coffee"), {
+    //     name: name,
+    //     description: description,
+    //   });
+    // } else {
+    //   await addDoc(collection(db, "offer"), {
+    //     name: name,
+    //     description: description,
+    //   });
+    // }
 
 
   };
@@ -45,12 +69,20 @@ const AddProductForm = () => {
     }
   };
 
-  const menuItems = [
-    { id: 1, label: 'Pizza' },
-    { id: 2, label: 'Burger' },
-    { id: 3, label: 'Coffee' },
-    { id: 3, label: 'Offer' },
-  ];
+  // const menuItems = [
+  //   { id: 1, label: 'Pizza' },
+  //   { id: 2, label: 'Burger' },
+  //   { id: 3, label: 'Coffee' },
+  //   { id: 3, label: 'Offer' },
+  // ];
+  const items = [
+
+    { label: 'Pizza', value: 'Pizza' },
+    { label: 'Burger', value: 'Burger' },
+    { label: 'Coffee', value: 'Coffe' },
+    { label: 'Offer', value: 'Offer' },
+  
+];
 
   const handlePress = async(item) => {
     setSelectedItem(item);
@@ -80,7 +112,7 @@ const AddProductForm = () => {
             <Text style={styles.fileInputText}>Choose File</Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.menuContainer}>
+         {/*\<View style={styles.menuContainer}>
         <FlatList
           data={menuItems}
           renderItem={renderItem}
@@ -89,7 +121,24 @@ const AddProductForm = () => {
         {selectedItem && (
           <Text>You selected {selectedItem.label}</Text>
         )}
-      </View>
+      </View> */}
+      <view>
+        <DropDownPicker
+        items={items}
+        open={isOpen}
+        setOpen={() => setIsOpen(!isOpen)}
+        value={selectedItem}
+        setValue={(val)=> setSelectedItem(val)}
+        placeholder="Choose category"
+        placeholderStyle ={{color : "" ,fontSize :16}}
+        // renderItem={renderItem}
+        // keyExtractor={(item) => item.id.toString()}
+      
+        />
+        {selectedItem && (
+              <Text>You selected {selectedItem.id}</Text>
+            )}
+      </view>
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={handleSubmit}>
             <Text style={styles.buttonText}>Add Product</Text>
@@ -109,6 +158,7 @@ const styles = StyleSheet.create({
   paddingHorizontal: 20,
   },
   form: {
+    height : "50%",
   width: '100%',
   backgroundColor: '#FFF',
   paddingVertical: 20,
@@ -137,15 +187,15 @@ const styles = StyleSheet.create({
   fontSize: 16,
   },
   button: {
-  backgroundColor: '#000',
+  backgroundColor: "#131A2C",
   borderRadius: 5,
   paddingHorizontal: 20,
   paddingVertical: 10,
   alignItems: 'center',
-  marginTop: 10,
+  marginTop: 30,
   },
   buttonText: {
-  color: '#FFF',
+  color: '#FFDE9B',
   fontSize: 18,
   fontWeight: 'bold',
   },
@@ -172,6 +222,19 @@ const styles = StyleSheet.create({
   selectedItem: {
   backgroundColor: '#000',
   color: '#FFF',
+  },
+  fileInputText: {
+    fontSize: "18px",
+  },
+  menuContainer: {
+    width: 200,
+    // marginBottom: 50,
+    fontWeight: "bold",
+    fontSize: "20px",
+    color: "#131A2C",
+  },
+  TextC: {
+    fontSize: "20px",
   },
   });
 
