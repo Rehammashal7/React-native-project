@@ -1,19 +1,14 @@
-import React, { useState,useEffect } from 'react';
-import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, FlatList, Pressable, 
-    ScrollView, Dimensions, TouchableWithoutFeedback } from 'react-native';
-import Countdown from 'react-native-countdown-component'
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../firebase';
+import React, { useState } from 'react';
+import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, FlatList, Pressable, ScrollView, Dimensions } from 'react-native';
+import Countdown from 'react-countdown';
+
 import FoodCard from '../components/Foodcard';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Food, { Offer, filterData } from '../data';
 import COLORS from '../Consts/Color';
-import Search from '../components/search';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
 
-const {width} = Dimensions.get('screen');
-const cardwidth = width-20;
-
+const PAYPAL_CLIENT_ID = 'AWY10CyVpqD5JFq5o5KelET49ca14WVmpcHn6kF7mxkdwEB1oYjcULi4_hEBrENkcapwEBtXg6-UITYd';
 
 // Generate required css
 
@@ -24,47 +19,13 @@ const cardwidth = width-20;
 const HomeScreen = ({ navigation }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [indexCheck, setIndexCheck] = useState("0")
-    const [products, setProducts] = useState([]);
-    const [userId, setUserId] = useState('');
 
-
-    useEffect(() => {
-        const getProducts = async () => {
-            const productsCollection = collection(db, 'offer');
-            const productsSnapshot = await getDocs(productsCollection);
-            const productsData = productsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            setProducts(productsData);
-        };
-        getProducts();
-    }, []);
-
-    useEffect(() => {
-        const getUserId = async () => {
-            const id = await AsyncStorage.getItem('USERID');
-            setUserId(id);
-            console.log(id);
-        };
-        getUserId();
-    }, []);
-
-    const handleProductPress = (product) => {
-        navigation.navigate('OfferDetails', { product });
+    const handleSearch = (text) => {
+        setSearchQuery(text);
     };
 
-    const renderProduct = ({ item }) => (
-        <TouchableOpacity onPress={() => handleProductPress(item)}>
-            <View style={styles.cardView}>
-                <Image source={{ uri: item.imageUrl}} style={styles.image} />
-
-                <Text style={styles.Name}>{item.name}</Text>
-                <View style={{ flexDirection: "row", marginTop: 10, marginHorizontal: 20, justifyContent: 'space-between' }}>
-                    <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{item.price}$</Text>
-                   
-                </View>
-            </View>
-        </TouchableOpacity>
-    );
     return (
+        <PayPalScriptProvider options={{ 'client-id': 'AWY10CyVpqD5JFq5o5KelET49ca14WVmpcHn6kF7mxkdwEB1oYjcULi4_hEBrENkcapwEBtXg6-UITYd'}}>
         <View style={styles.container}>
 
             <View style={styles.header}>
@@ -72,9 +33,15 @@ const HomeScreen = ({ navigation }) => {
             </View>
 
             <ScrollView>
-                <View  style = {{marginBottom:10,paddingTop:10}}>
-       <Search/>
-</View>
+                <View style={styles.searchContainer}>
+                    <Icon name="search" size={20} color="#808080" style={styles.searchIcon} />
+                    <TextInput
+                        style={styles.searchInput}
+                        placeholder="Search"
+                        onChangeText={handleSearch}
+                        value={searchQuery}
+                    />
+                </View>
 
                 <View>
                     <FlatList
@@ -119,23 +86,23 @@ const HomeScreen = ({ navigation }) => {
                             timeLabels={{ m: 'Min', s: 'Sec' }}
                         />
                     </View>
-                
+
                     <FlatList
                         style={{ marginTop: 10, marginBottom: 10 }}
                         horizontal={true}
-                        data={products}
+                        data={Offer}
+                        keyExtractor={(item, index) => index.toString()}
                         showsHorizontalScrollIndicator={false}
-                        renderItem={renderProduct}
-                        keyExtractor={(item) => item.id}
-                            // <View style={{ marginRight: 5 }}>
-                            //     <FoodCard
-                            //         screenWidth={300}
-                            //         images={item.images}
-                            //         restaurantName={item.restaurantName}
-                            //         price={item.price}
-                            //     />
-                            // </View>
-                        // )}
+                        renderItem={({ item }) => (
+                            <View style={{ marginRight: 5 }}>
+                                <FoodCard
+                                    screenWidth={300}
+                                    images={item.images}
+                                    restaurantName={item.restaurantName}
+                                    price={item.price}
+                                />
+                            </View>
+                        )}
                     />
                 </View>
 
@@ -148,10 +115,19 @@ const HomeScreen = ({ navigation }) => {
                     <FlatList
                         style={{ marginTop: 10, marginBottom: 10 }}
                         horizontal={true}
-                        data={products}
+                        data={Offer}
+                        keyExtractor={(item, index) => index.toString()}
                         showsHorizontalScrollIndicator={false}
-                        renderItem={renderProduct}
-                        keyExtractor={(item) => item.id}
+                        renderItem={({ item }) => (
+                            <View style={{ marginRight: 5 }}>
+                                <FoodCard
+                                    screenWidth={300}
+                                    images={item.images}
+                                    restaurantName={item.restaurantName}
+                                    price={item.price}
+                                />
+                            </View>
+                        )}
                     />
                 </View>
 
@@ -213,41 +189,40 @@ const HomeScreen = ({ navigation }) => {
             )} 
             />
     </View> */}
+
                 <View style={styles.bottoms}></View>
             </ScrollView>
 
             <View style={styles.NavContainer} >
                 <View style={styles.Navbar} >
-                    
+                    {/* <Pressable onPress={() => navigation.navigate("Favorite")} style={styles.iconBehave} >
+                        <Icon name="heart" size={25} color="gray" />
+                    </Pressable> */}
+                    {/* <Pressable onPress={() => navigation.navigate("Checkout")} style={styles.iconBehave} >
+                       <Icon name="cube" size={30} color="gray" />
+                   </Pressable> */}
                     <Pressable onPress={() => navigation.navigate("profile")} style={styles.iconBehave}>
                         <Icon name="user" size={25} color="gray" />
                     </Pressable>
+
                     <Pressable onPress={() => navigation.navigate("Home")} style={styles.iconBehave} >
                         <Icon name="home" size={25} color="#FFDE9B" />
                     </Pressable>
-                    <Pressable onPress={() =>  navigation.navigate('CartScreen', { userId: userId })} style={styles.iconBehave} >
+                    <Pressable onPress={() => navigation.navigate("CartScreen")} style={styles.iconBehave} >
                         <Icon name="shopping-cart" size={25} color={COLORS.grey} />
                     </Pressable>
+
                 </View>
             </View>
 
 
 
         </View>
+        </PayPalScriptProvider>
     );
 }
 
 const styles = StyleSheet.create({
-    cardView: {
-        marginHorizontal: 10,
-        marginBottom: 20,
-        marginTop: 20,
-        borderRadius: 15,
-        width: cardwidth,
-        height: 220,
-        elevation: 13,
-        backgroundColor: 'white',
-    },
     container: {
         flex: 1,
         backgroundColor: COLORS.background,
@@ -279,29 +254,6 @@ const styles = StyleSheet.create({
         margin: 10
 
     },
-    image: {
-        borderTopLeftRadius: 5,
-        borderTopRightRadius: 5,
-        height: 150,
-        width: cardwidth,
-    },
-
-    Name: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: "#131A2C",
-        marginTop: 5,
-        marginLeft: 10,
-        marginBottom: 10,
-        left: 200
-    },
-    HeartIcone: {
-        height: 30,
-        width: 30,
-        borderRadius: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     Text: {
         color: COLORS.darkblue,
         fontSize: 40,
@@ -325,7 +277,7 @@ const styles = StyleSheet.create({
     Navbar: {
         flexDirection: 'row',
         backgroundColor: COLORS.darkblue,
-        width: 370,
+        width: 38,
         justifyContent: 'space-evenly',
         borderRadius: 30,
         height: 40
@@ -335,19 +287,16 @@ const styles = StyleSheet.create({
         padding: 35,
         bottom: 30
     },
-    SearchArea:{marginTop :10,
-        width:"94%",
-        height:40,
-        backgroundColor:COLORS.background,
-        borderRadius:30,
-        borderWidth:1,
-        borderColor:COLORS.grey,
-        flexDirection:"row",
-        alignItems:"center",
-        padding:10
-      },
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderColor: COLORS.grey,
+        borderWidth: 1,
+        borderRadius: 10,
+        margin: 10,
+        padding: 5,
+    },
     searchIcon: {
-        
         marginRight: 10,
     },
     searchInput: {
@@ -400,7 +349,7 @@ const styles = StyleSheet.create({
         width: 60, height: 60,
         borderRadius: 30,
         alignItems: 'center'
-    }
+    },
 
 
 });

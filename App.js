@@ -16,7 +16,9 @@ import { PizzaDetails, ProductsListPizza } from './pages/ProductsListPizza';
 import AddProductForm from './pages/AddProductForm';
 import products from './pages/AddProducts'
 import { OfferDetails, ProductsListOffer } from './pages/Offers';
-import CartScreen from './pages/CartScreen'
+import CartScreen from './pages/CartScreen';
+import Checkout from './pages/Checkout';
+
 const Stack = createNativeStackNavigator();
 export default function App() {
   return (
@@ -38,9 +40,8 @@ export default function App() {
         <Stack.Screen name="SignUp" component={SignUpScreen} />
         <Stack.Screen name="profile" component={profile}  />
         <Stack.Screen name="products" component={products}  />
-        <Stack.Screen name="CartScreen" component={CartScreen
-        }  />
-
+        <Stack.Screen name="CartScreen" component={CartScreen }  />
+        <Stack.Screen name="Checkout" component={Checkout }  />
 
        
       </Stack.Navigator>
